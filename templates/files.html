@@ -1,0 +1,270 @@
+{% extends "base.html" %}
+
+{% block title %}My Files — CloudVault{% endblock %}
+
+{% block content %}
+<div class="files-page">
+    <!-- Page Header & Action Bar -->
+    <div class="page-header-row">
+        <div>
+            <h1 class="page-title">My Files</h1>
+            <p class="page-subtitle">Manage, search, preview, and download your vaulted documents</p>
+        </div>
+        <div class="page-header-actions">
+            <button type="button" class="btn btn-primary" onclick="window.CloudVault.openUploadModal()">
+                <i class="fa-solid fa-cloud-arrow-up"></i>
+                <span>Upload Files</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- Filter & Toolbar Controls Card -->
+    <div class="toolbar-card">
+        <!-- Top Toolbar Row: Search, Sort, View Switcher -->
+        <div class="toolbar-main-row">
+            <!-- Inline Search Form -->
+            <form action="{{ url_for('files.list_files') }}" method="GET" class="filter-search-form" id="filesFilterForm">
+                <input type="hidden" name="category" value="{{ category_filter }}">
+                <input type="hidden" name="view" id="viewInput" value="{{ active_view }}">
+
+                <div class="search-input-wrapper">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                    <input type="text" name="q" placeholder="Filter files by name..." value="{{ search_query }}" class="form-control form-control-sm" id="fileSearchInput">
+                    {% if search_query %}
+                        <a href="{{ url_for('files.list_files', category=category_filter, sort_by=sort_by, order=sort_order, view=active_view) }}" class="search-clear-btn" title="Clear search">
+                            <i class="fa-solid fa-xmark"></i>
+                        </a>
+                    {% endif %}
+                </div>
+
+                <!-- Sort Control -->
+                <div class="sort-controls-group">
+                    <label for="sortBySelect" class="sort-label"><i class="fa-solid fa-arrow-down-short-wide"></i> Sort:</label>
+                    <select name="sort_by" id="sortBySelect" class="form-select form-select-sm" onchange="document.getElementById('filesFilterForm').submit()">
+                        <option value="date" {% if sort_by == 'date' %}selected{% endif %}>Upload Date</option>
+                        <option value="name" {% if sort_by == 'name' %}selected{% endif %}>Filename</option>
+                        <option value="size" {% if sort_by == 'size' %}selected{% endif %}>File Size</option>
+                    </select>
+
+                    <select name="order" id="sortOrderSelect" class="form-select form-select-sm" onchange="document.getElementById('filesFilterForm').submit()">
+                        <option value="desc" {% if sort_order == 'desc' %}selected{% endif %}>Descending</option>
+                        <option value="asc" {% if sort_order == 'asc' %}selected{% endif %}>Ascending</option>
+                    </select>
+                </div>
+            </form>
+
+            <!-- View Mode Switcher -->
+            <div class="view-switcher-group">
+                <button type="button" class="btn-view-toggle {% if active_view == 'grid' %}active{% endif %}" id="viewGridBtn" title="Grid View" aria-label="Grid View">
+                    <i class="fa-solid fa-grip"></i>
+                </button>
+                <button type="button" class="btn-view-toggle {% if active_view == 'list' %}active{% endif %}" id="viewListBtn" title="List View" aria-label="List View">
+                    <i class="fa-solid fa-list-ul"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Category Filter Pills Row -->
+        <div class="category-pills-row">
+            <a href="{{ url_for('files.list_files', q=search_query, sort_by=sort_by, order=sort_order, view=active_view) }}" class="filter-pill {% if category_filter == 'all' %}active{% endif %}">
+                All Files
+            </a>
+            <a href="{{ url_for('files.list_files', category='document', q=search_query, sort_by=sort_by, order=sort_order, view=active_view) }}" class="filter-pill {% if category_filter == 'document' %}active{% endif %}">
+                <i class="fa-regular fa-file-lines"></i> Documents
+            </a>
+            <a href="{{ url_for('files.list_files', category='image', q=search_query, sort_by=sort_by, order=sort_order, view=active_view) }}" class="filter-pill {% if category_filter == 'image' %}active{% endif %}">
+                <i class="fa-regular fa-image"></i> Images
+            </a>
+            <a href="{{ url_for('files.list_files', category='spreadsheet', q=search_query, sort_by=sort_by, order=sort_order, view=active_view) }}" class="filter-pill {% if category_filter == 'spreadsheet' %}active{% endif %}">
+                <i class="fa-solid fa-file-excel"></i> Spreadsheets
+            </a>
+            <a href="{{ url_for('files.list_files', category='presentation', q=search_query, sort_by=sort_by, order=sort_order, view=active_view) }}" class="filter-pill {% if category_filter == 'presentation' %}active{% endif %}">
+                <i class="fa-solid fa-file-powerpoint"></i> Presentations
+            </a>
+            <a href="{{ url_for('files.list_files', category='archive', q=search_query, sort_by=sort_by, order=sort_order, view=active_view) }}" class="filter-pill {% if category_filter == 'archive' %}active{% endif %}">
+                <i class="fa-solid fa-file-zipper"></i> Archives
+            </a>
+            <a href="{{ url_for('files.list_files', category='media', q=search_query, sort_by=sort_by, order=sort_order, view=active_view) }}" class="filter-pill {% if category_filter == 'media' %}active{% endif %}">
+                <i class="fa-solid fa-photo-film"></i> Media
+            </a>
+            <a href="{{ url_for('files.list_files', category='other', q=search_query, sort_by=sort_by, order=sort_order, view=active_view) }}" class="filter-pill {% if category_filter == 'other' %}active{% endif %}">
+                <i class="fa-solid fa-folder"></i> Other
+            </a>
+        </div>
+    </div>
+
+    <!-- Active Search / Filter Status Bar -->
+    {% if search_query or category_filter != 'all' %}
+        <div class="filter-status-banner">
+            <span class="status-count-info">
+                Found <strong>{{ total_count }}</strong> {% if total_count == 1 %}file{% else %}files{% endif %}
+                {% if search_query %}matching "<strong>{{ search_query }}</strong>"{% endif %}
+                {% if category_filter != 'all' %}in category <strong>{{ category_filter | capitalize }}</strong>{% endif %}
+            </span>
+            <a href="{{ url_for('files.list_files', view=active_view) }}" class="reset-filter-link">
+                <i class="fa-solid fa-rotate-left"></i> Reset all filters
+            </a>
+        </div>
+    {% endif %}
+
+    <!-- Files Container -->
+    {% if files %}
+        <!-- GRID VIEW -->
+        <div class="files-grid-container {% if active_view != 'grid' %}d-none{% endif %}" id="filesGridView">
+            {% for file in files %}
+            <div class="file-card">
+                <div class="file-card-preview">
+                    {% if file.is_image %}
+                        <div class="img-preview-box">
+                            <img src="{{ url_for('files.preview_file', file_id=file.id) }}" alt="{{ file.original_filename }}" loading="lazy">
+                        </div>
+                    {% else %}
+                        <div class="icon-preview-box icon-preview-{{ file.category }}">
+                            {% if file.category == 'document' %}
+                                <i class="fa-regular fa-file-lines"></i>
+                            {% elif file.category == 'spreadsheet' %}
+                                <i class="fa-solid fa-file-excel"></i>
+                            {% elif file.category == 'presentation' %}
+                                <i class="fa-solid fa-file-powerpoint"></i>
+                            {% elif file.category == 'archive' %}
+                                <i class="fa-solid fa-file-zipper"></i>
+                            {% elif file.category == 'media' %}
+                                <i class="fa-solid fa-photo-film"></i>
+                            {% else %}
+                                <i class="fa-regular fa-file"></i>
+                            {% endif %}
+                        </div>
+                    {% endif %}
+                    <span class="file-ext-chip">{{ file.file_extension | upper }}</span>
+                </div>
+
+                <div class="file-card-body">
+                    <h4 class="file-card-title" title="{{ file.original_filename }}">{{ file.original_filename }}</h4>
+                    <div class="file-card-meta">
+                        <span class="file-card-size">{{ file.formatted_size }}</span>
+                        <span class="meta-dot">&bull;</span>
+                        <span class="file-card-date">{{ file.uploaded_at.strftime('%b %d, %Y') }}</span>
+                    </div>
+                </div>
+
+                <div class="file-card-actions">
+                    {% if file.is_previewable %}
+                        <a href="{{ url_for('files.preview_file', file_id=file.id) }}" target="_blank" class="card-action-btn" title="Preview file">
+                            <i class="fa-regular fa-eye"></i>
+                        </a>
+                    {% endif %}
+                    <a href="{{ url_for('files.download_file', file_id=file.id) }}" class="card-action-btn primary" title="Download file">
+                        <i class="fa-solid fa-download"></i>
+                    </a>
+                    <button type="button" class="card-action-btn danger" onclick="window.CloudVault.openDeleteModal({{ file.id }}, '{{ file.original_filename | escape }}')" title="Delete file">
+                        <i class="fa-regular fa-trash-can"></i>
+                    </button>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- LIST VIEW -->
+        <div class="files-list-container {% if active_view != 'list' %}d-none{% endif %}" id="filesListView">
+            <div class="table-responsive">
+                <table class="files-table files-full-table">
+                    <thead>
+                        <tr>
+                            <th>File Name</th>
+                            <th>Category</th>
+                            <th>Size</th>
+                            <th>Uploaded</th>
+                            <th class="text-right">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for file in files %}
+                        <tr>
+                            <td class="file-name-cell">
+                                <div class="file-item-info">
+                                    <div class="file-icon-badge file-icon-{{ file.category }}">
+                                        {% if file.category == 'document' %}
+                                            <i class="fa-solid fa-file-lines"></i>
+                                        {% elif file.category == 'image' %}
+                                            <i class="fa-solid fa-image"></i>
+                                        {% elif file.category == 'spreadsheet' %}
+                                            <i class="fa-solid fa-file-excel"></i>
+                                        {% elif file.category == 'presentation' %}
+                                            <i class="fa-solid fa-file-powerpoint"></i>
+                                        {% elif file.category == 'archive' %}
+                                            <i class="fa-solid fa-file-zipper"></i>
+                                        {% elif file.category == 'media' %}
+                                            <i class="fa-solid fa-photo-film"></i>
+                                        {% else %}
+                                            <i class="fa-solid fa-file"></i>
+                                        {% endif %}
+                                    </div>
+                                    <div class="file-name-details">
+                                        <span class="file-name-title" title="{{ file.original_filename }}">{{ file.original_filename }}</span>
+                                        <span class="file-ext-tag">{{ file.file_extension | upper }}</span>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <span class="category-badge category-badge-{{ file.category }}">
+                                    {{ file.category | capitalize }}
+                                </span>
+                            </td>
+                            <td class="file-size-cell">{{ file.formatted_size }}</td>
+                            <td class="file-date-cell">{{ file.uploaded_at.strftime('%b %d, %Y %H:%M') }}</td>
+                            <td class="file-actions-cell text-right">
+                                <div class="action-buttons-group">
+                                    {% if file.is_previewable %}
+                                        <a href="{{ url_for('files.preview_file', file_id=file.id) }}" target="_blank" class="btn-action-icon" title="Preview file">
+                                            <i class="fa-regular fa-eye"></i>
+                                        </a>
+                                    {% endif %}
+                                    <a href="{{ url_for('files.download_file', file_id=file.id) }}" class="btn-action-icon btn-action-primary" title="Download file">
+                                        <i class="fa-solid fa-download"></i>
+                                    </a>
+                                    <button type="button" class="btn-action-icon btn-action-danger" onclick="window.CloudVault.openDeleteModal({{ file.id }}, '{{ file.original_filename | escape }}')" title="Delete file">
+                                        <i class="fa-regular fa-trash-can"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    {% else %}
+        <!-- Empty State -->
+        <div class="empty-state-card">
+            <div class="empty-state-icon">
+                <i class="fa-solid fa-folder-open"></i>
+            </div>
+            <h3 class="empty-state-title">
+                {% if search_query or category_filter != 'all' %}
+                    No matching files found
+                {% else %}
+                    No files uploaded yet
+                {% endif %}
+            </h3>
+            <p class="empty-state-desc">
+                {% if search_query or category_filter != 'all' %}
+                    No files matched your search or category filter. Try refining your keywords or clearing the active filters.
+                {% else %}
+                    Your vault is currently empty. Start uploading your documents, photos, and archives securely.
+                {% endif %}
+            </p>
+            <div class="empty-state-buttons">
+                {% if search_query or category_filter != 'all' %}
+                    <a href="{{ url_for('files.list_files', view=active_view) }}" class="btn btn-outline">
+                        <i class="fa-solid fa-arrow-rotate-left"></i> Clear Filters
+                    </a>
+                {% endif %}
+                <button type="button" class="btn btn-primary" onclick="window.CloudVault.openUploadModal()">
+                    <i class="fa-solid fa-plus"></i> Upload New File
+                </button>
+            </div>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

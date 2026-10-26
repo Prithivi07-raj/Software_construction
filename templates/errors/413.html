@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+
+{% block title %}413 File Exceeds Limit — CloudVault{% endblock %}
+
+{% block content %}
+<div class="error-page-container">
+    <div class="error-card">
+        <div class="error-badge error-badge-warning">413</div>
+        <h2 class="error-title">Upload Size Limit Exceeded</h2>
+        <p class="error-desc">{{ description or "The uploaded file exceeds the configured maximum upload limit for CloudVault." }}</p>
+        <div class="error-actions">
+            <a href="{{ url_for('files.list_files') }}" class="btn btn-primary">
+                <i class="fa-solid fa-arrow-left"></i> Back to My Files
+            </a>
+            <a href="{{ url_for('main.profile') }}" class="btn btn-outline">
+                <i class="fa-solid fa-hard-drive"></i> View Storage Quota
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block guest_content %}
+<div class="error-page-container guest-error">
+    <div class="error-card">
+        <div class="error-badge error-badge-warning">413</div>
+        <h2 class="error-title">File Too Large</h2>
+        <p class="error-desc">The uploaded file exceeds the allowed size limit.</p>
+        <div class="error-actions">
+            <a href="{{ url_for('auth.login') }}" class="btn btn-primary">Sign In</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

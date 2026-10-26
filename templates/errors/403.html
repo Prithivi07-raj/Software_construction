@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+
+{% block title %}403 Forbidden — CloudVault{% endblock %}
+
+{% block content %}
+<div class="error-page-container">
+    <div class="error-card">
+        <div class="error-badge error-badge-danger">403</div>
+        <h2 class="error-title">Access Denied</h2>
+        <p class="error-desc">{{ description or "You do not have permission to access or modify this file." }}</p>
+        <div class="error-actions">
+            <a href="{{ url_for('main.dashboard') }}" class="btn btn-primary">Back to Dashboard</a>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block guest_content %}
+<div class="error-page-container guest-error">
+    <div class="error-card">
+        <div class="error-badge error-badge-danger">403</div>
+        <h2 class="error-title">Forbidden</h2>
+        <p class="error-desc">You do not have permission to view this resource.</p>
+        <div class="error-actions">
+            <a href="{{ url_for('auth.login') }}" class="btn btn-primary">Sign In</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

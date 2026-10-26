@@ -1,0 +1,196 @@
+<div class="about-page">
+    <!-- Hero Section -->
+    <div class="about-hero">
+        <div class="about-hero-badge">
+            <i class="fa-solid fa-shield-halved"></i> Software Construction Project
+        </div>
+        <h1 class="about-hero-title">CloudVault — Secure Cloud Storage System</h1>
+        <p class="about-hero-subtitle">
+            A modern, robust, and secure cloud storage web application designed with user isolation, 
+            resilient local file storage, and a modular architecture ready for Microsoft Azure Blob Storage.
+        </p>
+    </div>
+
+    <!-- Key Architectural Pillars Row -->
+    <div class="about-pillars-grid">
+        <div class="pillar-card">
+            <div class="pillar-icon bg-blue-light text-blue">
+                <i class="fa-solid fa-user-lock"></i>
+            </div>
+            <h3 class="pillar-title">User-Isolated Vaults</h3>
+            <p class="pillar-desc">
+                Every file belongs strictly to its authenticated owner. Server-side validation enforces 
+                <code>file.user_id == current_user.id</code> on every download, preview, and deletion operation.
+            </p>
+        </div>
+
+        <div class="pillar-card">
+            <div class="pillar-icon bg-emerald-light text-emerald">
+                <i class="fa-solid fa-folder-shield"></i>
+            </div>
+            <h3 class="pillar-title">Protected Storage Layer</h3>
+            <p class="pillar-desc">
+                Files are stored outside the public static directory with collision-resistant UUIDs, 
+                eliminating filename collisions, execution of untrusted scripts, and directory traversal attacks.
+            </p>
+        </div>
+
+        <div class="pillar-card">
+            <div class="pillar-icon bg-indigo-light text-indigo">
+                <i class="fa-brands fa-microsoft"></i>
+            </div>
+            <h3 class="pillar-title">Azure Blob Ready</h3>
+            <p class="pillar-desc">
+                Built upon an abstract <code>BaseStorageService</code> interface. Switching from local disk 
+                storage to Microsoft Azure Blob Storage requires zero modifications to the UI or route handlers.
+            </p>
+        </div>
+    </div>
+
+    <!-- Technology Stack Section -->
+    <div class="section-container">
+        <div class="section-header">
+            <div>
+                <h2 class="section-title">Technology Stack</h2>
+                <p class="section-sub">Standard modern web technologies chosen for reliability, security, and performance</p>
+            </div>
+        </div>
+
+        <div class="tech-stack-grid">
+            <div class="tech-card">
+                <div class="tech-icon text-blue"><i class="fa-brands fa-python"></i></div>
+                <div class="tech-details">
+                    <h4 class="tech-name">Python Flask 3.x</h4>
+                    <p class="tech-role">Backend Application Framework</p>
+                    <span class="tech-tag">Modular Blueprints</span>
+                </div>
+            </div>
+
+            <div class="tech-card">
+                <div class="tech-icon text-indigo"><i class="fa-solid fa-database"></i></div>
+                <div class="tech-details">
+                    <h4 class="tech-name">SQLite & SQLAlchemy</h4>
+                    <p class="tech-role">Relational Data Persistence</p>
+                    <span class="tech-tag">ORM & Metadata</span>
+                </div>
+            </div>
+
+            <div class="tech-card">
+                <div class="tech-icon text-emerald"><i class="fa-solid fa-key"></i></div>
+                <div class="tech-details">
+                    <h4 class="tech-name">Flask-Login & Werkzeug</h4>
+                    <p class="tech-role">Authentication & Cryptography</p>
+                    <span class="tech-tag">Salted Hashes</span>
+                </div>
+            </div>
+
+            <div class="tech-card">
+                <div class="tech-icon text-purple"><i class="fa-solid fa-shield-virus"></i></div>
+                <div class="tech-details">
+                    <h4 class="tech-name">Flask-WTF & CSRF</h4>
+                    <p class="tech-role">Form Validation & CSRF Protection</p>
+                    <span class="tech-tag">Token Validation</span>
+                </div>
+            </div>
+
+            <div class="tech-card">
+                <div class="tech-icon text-amber"><i class="fa-brands fa-js"></i></div>
+                <div class="tech-details">
+                    <h4 class="tech-name">Vanilla JavaScript & HTML5</h4>
+                    <p class="tech-role">Client-Side Interactivity</p>
+                    <span class="tech-tag">Drag & Drop Upload</span>
+                </div>
+            </div>
+
+            <div class="tech-card">
+                <div class="tech-icon text-cyan"><i class="fa-brands fa-css3-alt"></i></div>
+                <div class="tech-details">
+                    <h4 class="tech-name">Custom Responsive CSS3</h4>
+                    <p class="tech-role">SaaS User Interface Design</p>
+                    <span class="tech-tag">Inter Typography</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Microsoft Azure Blob Storage Integration Roadmap -->
+    <div class="section-container">
+        <div class="azure-roadmap-card">
+            <div class="azure-roadmap-header">
+                <div class="azure-logo-badge">
+                    <i class="fa-brands fa-microsoft"></i>
+                </div>
+                <div>
+                    <h2 class="azure-title">Microsoft Azure Blob Storage Integration Plan</h2>
+                    <p class="azure-sub">Architectural design for seamless Phase 2 Cloud deployment</p>
+                </div>
+            </div>
+
+            <div class="azure-steps-grid">
+                <div class="azure-step">
+                    <div class="step-num">1</div>
+                    <div class="step-content">
+                        <h4>Storage Service Interface</h4>
+                        <p>
+                            Both <code>LocalStorageService</code> and <code>AzureBlobStorageService</code> inherit 
+                            from <code>BaseStorageService</code>, implementing identical signatures for <code>save_file()</code>, 
+                            <code>get_file_path()</code>, <code>delete_file()</code>, and <code>file_exists()</code>.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="azure-step">
+                    <div class="step-num">2</div>
+                    <div class="step-content">
+                        <h4>Azure Blob Storage SDK</h4>
+                        <p>
+                            In Phase 2, installing <code>azure-storage-blob</code> will activate the 
+                            <code>BlobServiceClient</code> to stream bytes directly to private Azure Blob Containers 
+                            with access tiering (Hot/Cool/Archive).
+                        </p>
+                    </div>
+                </div>
+
+                <div class="azure-step">
+                    <div class="step-num">3</div>
+                    <div class="step-content">
+                        <h4>Shared Access Signatures (SAS)</h4>
+                        <p>
+                            Downloads can utilize short-lived time-bounded Shared Access Signature (SAS) tokens 
+                            generated securely on the backend, offloading bandwidth from Flask to Azure CDN.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="azure-step">
+                    <div class="step-num">4</div>
+                    <div class="step-content">
+                        <h4>Environment-Driven Switch</h4>
+                        <p>
+                            Changing <code>STORAGE_TYPE=azure</code> in <code>.env</code> with credentials allows immediate 
+                            cloud deployment to Azure App Service without altering a single line of frontend code.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="azure-code-preview">
+                <div class="code-preview-header">
+                    <span><i class="fa-solid fa-code"></i> services/storage_service.py — Adapter Swapping Flow</span>
+                </div>
+                <pre class="code-box"><code># Current development mode (Active):
+storage = LocalStorageService(upload_folder='storage/uploads')
+
+# Planned Microsoft Azure deployment (Phase 2):
+storage = AzureBlobStorageService(
+    connection_string=os.environ['AZURE_STORAGE_CONNECTION_STRING'],
+    container_name=os.environ.get('AZURE_CONTAINER_NAME', 'cloudvault-files')
+)
+
+# Route handlers remain completely identical:
+storage.save_file(user_id=current_user.id, file_stream=file.stream, stored_filename=name)
+storage.delete_file(user_id=current_user.id, stored_filename=name)</code></pre>
+            </div>
+        </div>
+    </div>
+</div>

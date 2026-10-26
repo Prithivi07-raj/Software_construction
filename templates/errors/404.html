@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+
+{% block title %}404 Page Not Found — CloudVault{% endblock %}
+
+{% block content %}
+<div class="error-page-container">
+    <div class="error-card">
+        <div class="error-badge">404</div>
+        <h2 class="error-title">Vault Item Not Found</h2>
+        <p class="error-desc">{{ description or "The page or file you are looking for does not exist or may have been moved." }}</p>
+        <div class="error-actions">
+            <a href="{{ url_for('main.dashboard') }}" class="btn btn-primary">
+                <i class="fa-solid fa-gauge-high"></i> Back to Dashboard
+            </a>
+            <a href="{{ url_for('files.list_files') }}" class="btn btn-outline">
+                <i class="fa-solid fa-folder-open"></i> My Files
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block guest_content %}
+<div class="error-page-container guest-error">
+    <div class="error-card">
+        <div class="error-badge">404</div>
+        <h2 class="error-title">Page Not Found</h2>
+        <p class="error-desc">The requested page does not exist.</p>
+        <div class="error-actions">
+            <a href="{{ url_for('auth.login') }}" class="btn btn-primary">
+                <i class="fa-solid fa-arrow-right-to-bracket"></i> Sign In
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

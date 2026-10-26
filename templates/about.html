@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+
+{% block title %}About CloudVault — Architecture & Azure Roadmap{% endblock %}
+
+{% block content %}
+    {% include "about_content.html" %}
+{% endblock %}
+
+{% block guest_content %}
+<div class="guest-container">
+    {% include "about_content.html" %}
+</div>
+{% endblock %}

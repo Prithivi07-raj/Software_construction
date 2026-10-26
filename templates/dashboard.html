@@ -1,0 +1,289 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard — CloudVault{% endblock %}
+
+{% block content %}
+<div class="dashboard-page">
+    <!-- Welcome Header Banner -->
+    <div class="welcome-banner">
+        <div class="welcome-text">
+            <h1 class="welcome-title">Welcome back, {{ current_user.full_name }}</h1>
+            <p class="welcome-subtitle">Here is a summary of your files and storage utilization in CloudVault.</p>
+        </div>
+        <div class="welcome-actions">
+            <button type="button" class="btn btn-primary" onclick="window.CloudVault.openUploadModal()">
+                <i class="fa-solid fa-cloud-arrow-up"></i>
+                <span>Upload New File</span>
+            </button>
+            <a href="{{ url_for('files.list_files') }}" class="btn btn-outline">
+                <i class="fa-solid fa-folder-open"></i>
+                <span>Explore All Files</span>
+            </a>
+        </div>
+    </div>
+
+    <!-- Metrics Cards Row -->
+    <div class="stats-grid">
+        <!-- Total Files -->
+        <div class="stat-card">
+            <div class="stat-card-top">
+                <div class="stat-icon-wrapper bg-blue-light text-blue">
+                    <i class="fa-solid fa-folder-tree"></i>
+                </div>
+                <span class="stat-tag tag-success">Active</span>
+            </div>
+            <div class="stat-value">{{ total_files }}</div>
+            <div class="stat-label">Total Files Stored</div>
+            <div class="stat-subtext">Across all categories</div>
+        </div>
+
+        <!-- Storage Used -->
+        <div class="stat-card">
+            <div class="stat-card-top">
+                <div class="stat-icon-wrapper bg-indigo-light text-indigo">
+                    <i class="fa-solid fa-hard-drive"></i>
+                </div>
+                <span class="stat-tag tag-info">{{ storage_percentage }}% Quota</span>
+            </div>
+            <div class="stat-value">{{ storage_used_formatted }}</div>
+            <div class="stat-label">Storage Consumed</div>
+            <div class="stat-subtext">of {{ storage_quota_formatted }} available</div>
+            <div class="stat-progress-bar">
+                <div class="stat-progress-fill" style="width: {{ storage_percentage }}%;"></div>
+            </div>
+        </div>
+
+        <!-- Adapter Status -->
+        <div class="stat-card">
+            <div class="stat-card-top">
+                <div class="stat-icon-wrapper bg-emerald-light text-emerald">
+                    <i class="fa-solid fa-server"></i>
+                </div>
+                <span class="stat-tag tag-success">Phase 1</span>
+            </div>
+            <div class="stat-value">Local Storage</div>
+            <div class="stat-label">Active Storage Engine</div>
+            <div class="stat-subtext">Ready for Azure Blob adapter</div>
+        </div>
+
+        <!-- Security Status -->
+        <div class="stat-card">
+            <div class="stat-card-top">
+                <div class="stat-icon-wrapper bg-purple-light text-purple">
+                    <i class="fa-solid fa-shield-halved"></i>
+                </div>
+                <span class="stat-tag tag-purple">Protected</span>
+            </div>
+            <div class="stat-value">Isolated</div>
+            <div class="stat-label">User Access Enforcement</div>
+            <div class="stat-subtext">UUID obfuscated on disk</div>
+        </div>
+    </div>
+
+    <!-- Category Distribution Grid -->
+    <div class="section-container">
+        <div class="section-header">
+            <div>
+                <h2 class="section-title">Storage Breakdown by Category</h2>
+                <p class="section-sub">Quick view of your storage distribution</p>
+            </div>
+        </div>
+        <div class="category-cards-grid">
+            <!-- Documents -->
+            <a href="{{ url_for('files.list_files', category='document') }}" class="category-card">
+                <div class="cat-icon-box text-blue bg-blue-light">
+                    <i class="fa-solid fa-file-lines"></i>
+                </div>
+                <div class="cat-info">
+                    <div class="cat-name">Documents</div>
+                    <div class="cat-count">{{ category_stats.document.count }} files</div>
+                </div>
+                <div class="cat-size">{{ category_stats.document.formatted_size }}</div>
+            </a>
+
+            <!-- Images -->
+            <a href="{{ url_for('files.list_files', category='image') }}" class="category-card">
+                <div class="cat-icon-box text-emerald bg-emerald-light">
+                    <i class="fa-solid fa-image"></i>
+                </div>
+                <div class="cat-info">
+                    <div class="cat-name">Images</div>
+                    <div class="cat-count">{{ category_stats.image.count }} files</div>
+                </div>
+                <div class="cat-size">{{ category_stats.image.formatted_size }}</div>
+            </a>
+
+            <!-- Spreadsheets -->
+            <a href="{{ url_for('files.list_files', category='spreadsheet') }}" class="category-card">
+                <div class="cat-icon-box text-teal bg-teal-light">
+                    <i class="fa-solid fa-file-excel"></i>
+                </div>
+                <div class="cat-info">
+                    <div class="cat-name">Spreadsheets</div>
+                    <div class="cat-count">{{ category_stats.spreadsheet.count }} files</div>
+                </div>
+                <div class="cat-size">{{ category_stats.spreadsheet.formatted_size }}</div>
+            </a>
+
+            <!-- Presentations -->
+            <a href="{{ url_for('files.list_files', category='presentation') }}" class="category-card">
+                <div class="cat-icon-box text-amber bg-amber-light">
+                    <i class="fa-solid fa-file-powerpoint"></i>
+                </div>
+                <div class="cat-info">
+                    <div class="cat-name">Presentations</div>
+                    <div class="cat-count">{{ category_stats.presentation.count }} files</div>
+                </div>
+                <div class="cat-size">{{ category_stats.presentation.formatted_size }}</div>
+            </a>
+
+            <!-- Archives -->
+            <a href="{{ url_for('files.list_files', category='archive') }}" class="category-card">
+                <div class="cat-icon-box text-purple bg-purple-light">
+                    <i class="fa-solid fa-file-zipper"></i>
+                </div>
+                <div class="cat-info">
+                    <div class="cat-name">Archives & Zips</div>
+                    <div class="cat-count">{{ category_stats.archive.count }} files</div>
+                </div>
+                <div class="cat-size">{{ category_stats.archive.formatted_size }}</div>
+            </a>
+
+            <!-- Media -->
+            <a href="{{ url_for('files.list_files', category='media') }}" class="category-card">
+                <div class="cat-icon-box text-rose bg-rose-light">
+                    <i class="fa-solid fa-photo-film"></i>
+                </div>
+                <div class="cat-info">
+                    <div class="cat-name">Media</div>
+                    <div class="cat-count">{{ category_stats.media.count }} files</div>
+                </div>
+                <div class="cat-size">{{ category_stats.media.formatted_size }}</div>
+            </a>
+        </div>
+    </div>
+
+    <!-- Quick Inline Drag-and-Drop Dropzone -->
+    <div class="dashboard-dropzone-section">
+        <div class="inline-dropzone" id="dashboardDropzone">
+            <div class="inline-dropzone-content">
+                <div class="inline-dropzone-icon">
+                    <i class="fa-solid fa-cloud-arrow-up"></i>
+                </div>
+                <div class="inline-dropzone-text">
+                    <h3 class="dropzone-heading">Drag and drop files to quickly upload</h3>
+                    <p class="dropzone-subheading">Or <button type="button" class="btn-link inline-browse-btn">browse your computer</button> (up to {{ max_upload_mb }} MB)</p>
+                </div>
+                <input type="file" id="dashboardFileInput" class="file-input-hidden" multiple>
+            </div>
+            <!-- Live upload progress inside dashboard -->
+            <div class="inline-progress-container" id="dashboardProgressContainer" style="display: none;">
+                <div class="inline-progress-header">
+                    <span id="dashboardProgressFilename">Uploading...</span>
+                    <span id="dashboardProgressPercent">0%</span>
+                </div>
+                <div class="inline-progress-bar">
+                    <div class="inline-progress-fill" id="dashboardProgressFill" style="width: 0%;"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Files Section -->
+    <div class="section-container">
+        <div class="section-header">
+            <div>
+                <h2 class="section-title">Recently Uploaded Files</h2>
+                <p class="section-sub">Latest additions to your storage vault</p>
+            </div>
+            {% if recent_files %}
+                <a href="{{ url_for('files.list_files') }}" class="view-all-link">
+                    <span>View all {{ total_files }} files</span>
+                    <i class="fa-solid fa-arrow-right"></i>
+                </a>
+            {% endif %}
+        </div>
+
+        {% if recent_files %}
+            <div class="table-responsive">
+                <table class="files-table">
+                    <thead>
+                        <tr>
+                            <th>File Name</th>
+                            <th>Category</th>
+                            <th>File Size</th>
+                            <th>Upload Date</th>
+                            <th class="text-right">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for file in recent_files %}
+                        <tr>
+                            <td class="file-name-cell">
+                                <div class="file-item-info">
+                                    <div class="file-icon-badge file-icon-{{ file.category }}">
+                                        {% if file.category == 'document' %}
+                                            <i class="fa-solid fa-file-lines"></i>
+                                        {% elif file.category == 'image' %}
+                                            <i class="fa-solid fa-image"></i>
+                                        {% elif file.category == 'spreadsheet' %}
+                                            <i class="fa-solid fa-file-excel"></i>
+                                        {% elif file.category == 'presentation' %}
+                                            <i class="fa-solid fa-file-powerpoint"></i>
+                                        {% elif file.category == 'archive' %}
+                                            <i class="fa-solid fa-file-zipper"></i>
+                                        {% elif file.category == 'media' %}
+                                            <i class="fa-solid fa-photo-film"></i>
+                                        {% else %}
+                                            <i class="fa-solid fa-file"></i>
+                                        {% endif %}
+                                    </div>
+                                    <div class="file-name-details">
+                                        <span class="file-name-title" title="{{ file.original_filename }}">{{ file.original_filename }}</span>
+                                        <span class="file-ext-tag">{{ file.file_extension | upper }}</span>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <span class="category-badge category-badge-{{ file.category }}">
+                                    {{ file.category | capitalize }}
+                                </span>
+                            </td>
+                            <td class="file-size-cell">{{ file.formatted_size }}</td>
+                            <td class="file-date-cell">{{ file.uploaded_at.strftime('%b %d, %Y %H:%M') }}</td>
+                            <td class="file-actions-cell text-right">
+                                <div class="action-buttons-group">
+                                    {% if file.is_previewable %}
+                                        <a href="{{ url_for('files.preview_file', file_id=file.id) }}" target="_blank" class="btn-action-icon" title="Preview file in new tab">
+                                            <i class="fa-regular fa-eye"></i>
+                                        </a>
+                                    {% endif %}
+                                    <a href="{{ url_for('files.download_file', file_id=file.id) }}" class="btn-action-icon btn-action-primary" title="Download file">
+                                        <i class="fa-solid fa-download"></i>
+                                    </a>
+                                    <button type="button" class="btn-action-icon btn-action-danger" onclick="window.CloudVault.openDeleteModal({{ file.id }}, '{{ file.original_filename | escape }}')" title="Delete file">
+                                        <i class="fa-regular fa-trash-can"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <!-- Empty State -->
+            <div class="empty-state-card">
+                <div class="empty-state-icon">
+                    <i class="fa-solid fa-cloud-arrow-up"></i>
+                </div>
+                <h3 class="empty-state-title">Your vault is empty</h3>
+                <p class="empty-state-desc">You haven't uploaded any files yet. Drag and drop files above or click the button below to store your first file safely.</p>
+                <button type="button" class="btn btn-primary" onclick="window.CloudVault.openUploadModal()">
+                    <i class="fa-solid fa-plus"></i> Upload Your First File
+                </button>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

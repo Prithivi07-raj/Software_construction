@@ -1,0 +1,210 @@
+{% extends "base.html" %}
+
+{% block title %}Profile & Security — CloudVault{% endblock %}
+
+{% block content %}
+<div class="profile-page">
+    <div class="page-header-row">
+        <div>
+            <h1 class="page-title">Profile & Account Security</h1>
+            <p class="page-subtitle">Manage your account information, storage quota, and authentication credentials</p>
+        </div>
+    </div>
+
+    <div class="profile-layout-grid">
+        <!-- Left Column: User Summary & Storage Quota -->
+        <div class="profile-sidebar-col">
+            <!-- Account Summary Card -->
+            <div class="card profile-info-card">
+                <div class="profile-avatar-large">
+                    {{ current_user.full_name[0] | upper }}
+                </div>
+                <h3 class="profile-user-name">{{ current_user.full_name }}</h3>
+                <p class="profile-user-email">{{ current_user.email }}</p>
+
+                <div class="profile-badges-row">
+                    <span class="badge badge-success"><i class="fa-solid fa-shield-check"></i> Verified Account</span>
+                    <span class="badge badge-primary"><i class="fa-solid fa-hard-drive"></i> Free Tier (250 MB)</span>
+                </div>
+
+                <div class="profile-meta-list">
+                    <div class="profile-meta-item">
+                        <span class="meta-label">Member Since</span>
+                        <span class="meta-val">{{ current_user.created_at.strftime('%B %d, %Y') }}</span>
+                    </div>
+                    <div class="profile-meta-item">
+                        <span class="meta-label">Total Files Stored</span>
+                        <span class="meta-val">{{ total_files }}</span>
+                    </div>
+                    <div class="profile-meta-item">
+                        <span class="meta-label">Storage Engine</span>
+                        <span class="meta-val">Local FS (Azure Ready)</span>
+                    </div>
+                </div>
+
+                <div class="profile-card-action">
+                    <a href="{{ url_for('auth.logout') }}" class="btn btn-outline-danger btn-block">
+                        <i class="fa-solid fa-arrow-right-from-bracket"></i> Sign Out of Account
+                    </a>
+                </div>
+            </div>
+
+            <!-- Storage Quota Details Card -->
+            <div class="card storage-quota-card">
+                <div class="card-header-simple">
+                    <div class="card-icon-title">
+                        <i class="fa-solid fa-cloud-arrow-up text-blue"></i>
+                        <span>Storage Allocation</span>
+                    </div>
+                    <span class="storage-pct-pill">{{ storage_percentage }}%</span>
+                </div>
+                <div class="storage-bar-wrapper">
+                    <div class="storage-bar">
+                        <div class="storage-bar-fill" style="width: {{ storage_percentage }}%;"></div>
+                    </div>
+                </div>
+                <div class="storage-stats-labels">
+                    <span>Used: <strong>{{ storage_used_formatted }}</strong></span>
+                    <span>Limit: <strong>{{ storage_quota_formatted }}</strong></span>
+                </div>
+                <p class="storage-quota-note">
+                    Files are stored in an isolated user directory outside the public web tree with UUID-mapped filenames.
+                </p>
+            </div>
+        </div>
+
+        <!-- Right Column: Change Password & Security Settings -->
+        <div class="profile-main-col">
+            <!-- Password Change Form Card -->
+            <div class="card security-card">
+                <div class="card-header-styled">
+                    <div class="header-icon-box text-indigo bg-indigo-light">
+                        <i class="fa-solid fa-key"></i>
+                    </div>
+                    <div>
+                        <h3 class="card-title">Change Password</h3>
+                        <p class="card-sub">Ensure your account uses a long, unique password with letters and numbers</p>
+                    </div>
+                </div>
+
+                <form method="POST" action="{{ url_for('main.profile') }}" class="styled-form" novalidate>
+                    {{ form.hidden_tag() }}
+
+                    <!-- Current Password -->
+                    <div class="form-group">
+                        <label for="current_password" class="form-label">Current Password</label>
+                        <div class="input-with-icon input-with-toggle">
+                            <i class="fa-solid fa-lock input-icon"></i>
+                            {{ form.current_password(class="form-control password-input" + (" is-invalid" if form.current_password.errors else ""), id="currPassword") }}
+                            <button type="button" class="btn-password-toggle" data-target="currPassword" aria-label="Toggle password visibility">
+                                <i class="fa-regular fa-eye eye-icon"></i>
+                            </button>
+                        </div>
+                        {% if form.current_password.errors %}
+                            <div class="form-error">
+                                {% for error in form.current_password.errors %}
+                                    <span><i class="fa-solid fa-circle-exclamation"></i> {{ error }}</span>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- New Password -->
+                    <div class="form-group">
+                        <label for="new_password" class="form-label">New Password</label>
+                        <div class="input-with-icon input-with-toggle">
+                            <i class="fa-solid fa-shield-halved input-icon"></i>
+                            {{ form.new_password(class="form-control password-input" + (" is-invalid" if form.new_password.errors else ""), id="newPassword") }}
+                            <button type="button" class="btn-password-toggle" data-target="newPassword" aria-label="Toggle password visibility">
+                                <i class="fa-regular fa-eye eye-icon"></i>
+                            </button>
+                        </div>
+                        <!-- Live password strength indicator for new password -->
+                        <div class="password-strength-container" id="newPwdStrengthBox">
+                            <div class="strength-meter">
+                                <div class="strength-bar" id="newStrengthBar"></div>
+                            </div>
+                            <div class="strength-label-row">
+                                <span class="strength-text" id="newStrengthText">Password Strength</span>
+                                <div class="strength-rules">
+                                    <span class="rule-item" id="newRuleLength"><i class="fa-solid fa-circle-notch"></i> 8+ chars</span>
+                                    <span class="rule-item" id="newRuleLetter"><i class="fa-solid fa-circle-notch"></i> Letters</span>
+                                    <span class="rule-item" id="newRuleNumber"><i class="fa-solid fa-circle-notch"></i> Numbers</span>
+                                </div>
+                            </div>
+                        </div>
+                        {% if form.new_password.errors %}
+                            <div class="form-error">
+                                {% for error in form.new_password.errors %}
+                                    <span><i class="fa-solid fa-circle-exclamation"></i> {{ error }}</span>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Confirm New Password -->
+                    <div class="form-group">
+                        <label for="confirm_new_password" class="form-label">Confirm New Password</label>
+                        <div class="input-with-icon input-with-toggle">
+                            <i class="fa-solid fa-check-double input-icon"></i>
+                            {{ form.confirm_new_password(class="form-control password-input" + (" is-invalid" if form.confirm_new_password.errors else ""), id="confirmNewPassword") }}
+                            <button type="button" class="btn-password-toggle" data-target="confirmNewPassword" aria-label="Toggle password visibility">
+                                <i class="fa-regular fa-eye eye-icon"></i>
+                            </button>
+                        </div>
+                        {% if form.confirm_new_password.errors %}
+                            <div class="form-error">
+                                {% for error in form.confirm_new_password.errors %}
+                                    <span><i class="fa-solid fa-circle-exclamation"></i> {{ error }}</span>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="form-actions-row">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fa-solid fa-shield-check"></i>
+                            <span>Update Password</span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Architecture & Security Features Summary Card -->
+            <div class="card security-checklist-card">
+                <h4 class="card-subheading"><i class="fa-solid fa-lock"></i> Built-in Security Safeguards</h4>
+                <div class="security-features-grid">
+                    <div class="feature-item">
+                        <div class="feature-item-icon text-success"><i class="fa-solid fa-check"></i></div>
+                        <div>
+                            <strong>Werkzeug Salted Password Hashing</strong>
+                            <p>Passwords are never stored in plain text. Stored as scrypt/pbkdf2 salted hashes.</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="feature-item-icon text-success"><i class="fa-solid fa-check"></i></div>
+                        <div>
+                            <strong>Ownership Authorization</strong>
+                            <p>Every file action verifies <code>file.user_id == current_user.id</code> on the server.</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="feature-item-icon text-success"><i class="fa-solid fa-check"></i></div>
+                        <div>
+                            <strong>Path Traversal Defense</strong>
+                            <p>Files are stored by UUID inside user directories outside the public web root.</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="feature-item-icon text-success"><i class="fa-solid fa-check"></i></div>
+                        <div>
+                            <strong>CSRF Token Protection</strong>
+                            <p>All forms and file actions require valid CSRF verification tokens.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+
+{% block title %}400 Bad Request — CloudVault{% endblock %}
+
+{% block content %}
+<div class="error-page-container">
+    <div class="error-card">
+        <div class="error-badge error-badge-warning">400</div>
+        <h2 class="error-title">Bad Request</h2>
+        <p class="error-desc">{{ description or "The server could not understand the request." }}</p>
+        <div class="error-actions">
+            <a href="{{ url_for('main.dashboard') }}" class="btn btn-primary">Back to Dashboard</a>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block guest_content %}
+<div class="error-page-container guest-error">
+    <div class="error-card">
+        <div class="error-badge error-badge-warning">400</div>
+        <h2 class="error-title">Bad Request</h2>
+        <p class="error-desc">Invalid request submitted.</p>
+        <div class="error-actions">
+            <a href="{{ url_for('auth.login') }}" class="btn btn-primary">Sign In</a>
+        </div>
+    </div>
+</div>
+{% endblock %}
