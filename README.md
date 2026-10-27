@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # CloudVault — Secure Cloud Storage System
 
 A modern, secure cloud storage web application developed for the **Software Construction** college project. CloudVault is inspired by enterprise SaaS platforms like Google Drive and Dropbox, offering a responsive user interface, end-to-end user isolation, resilient local file storage, and a modular architecture engineered for future **Microsoft Azure Blob Storage** deployment.
@@ -239,3 +240,6 @@ When transitioning to cloud deployment:
 
 ## 📄 License & Attribution
 Developed for the **Software Construction** college curriculum. All rights reserved &copy; 2026.
+=======
+# Software_construction
+>>>>>>> github/main
